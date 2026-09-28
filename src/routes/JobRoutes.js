@@ -1,10 +1,12 @@
-const express=require("express");
-const { createJobController } = require("../controller/jobController");
+const express = require("express");
+const {
+  createJobController,
+  allJobsController,
+} = require("../controller/jobController");
 
-const jobRouter=express.Router()
+const jobRouter = express.Router();
 
+jobRouter.post("/create", createJobController);
+jobRouter.get("/all", allJobsController);
 
-jobRouter.post('/create', createJobController)
-
-
-module.exports=jobRouter
+module.exports = jobRouter;

@@ -7,7 +7,7 @@ const PORT = 8000;
 
 
 
-
+app.use(express.json())
 app.use("/api/v1/job", jobRouter)
 
 mongoDBConnect()
