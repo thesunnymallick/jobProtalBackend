@@ -1,16 +1,13 @@
 const Job = require("../models/JobModel");
 const jobCreateValidator = require("../validator/jobCreateValidator");
 const jobUpdateValidator = require("../validator/jobUpdateValidator");
+const AppError = require("../utils/AppError");
 
-const createJobController = async (req, res) => {
+const createJobController = async (req, res, next) => {
   try {
     const validator = await jobCreateValidator(req.body);
     if (!validator.valid) {
-      return res.status(400).json({
-        success: false,
-        code: 400,
-        message: validator.message,
-      });
+      throw new AppError(validator.message, 400);
     }
     const { title, company, description, location, salary, skills } = req.body;
     const job = await Job.create({
@@ -28,14 +25,11 @@ const createJobController = async (req, res) => {
       data: job,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
-const allJobsController = async (req, res) => {
+const allJobsController = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -59,26 +53,17 @@ const allJobsController = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(501).json({
-      success: false,
-      code: 501,
-      message: "Internal server error",
-      error: error.message,
-    });
+    next(error);
   }
 };
 
-const editJobController = async (req, res) => {
+const editJobController = async (req, res, next) => {
   try {
     const { id } = req.params;
 
     const validator = await jobUpdateValidator(req.body);
     if (!validator.valid) {
-      return res.status(400).json({
-        success: false,
-        code: 400,
-        message: validator.message,
-      });
+      throw new AppError(validator.message, 400);
     }
 
     const { title, company, description, location, salary, skills } = req.body;
@@ -100,11 +85,7 @@ const editJobController = async (req, res) => {
     });
 
     if (!job) {
-      return res.status(404).json({
-        success: false,
-        code: 404,
-        message: "Job not found",
-      });
+      throw new AppError("Job not found", 404);
     }
 
     res.status(200).json({
@@ -114,26 +95,17 @@ const editJobController = async (req, res) => {
       data: job,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      code: 500,
-      message: "Internal server error",
-      error: error.message,
-    });
+    next(error);
   }
 };
 
-const deleteJobController = async (req, res) => {
+const deleteJobController = async (req, res, next) => {
   try {
     const { id } = req.params;
     const job = await Job.findByIdAndDelete(id);
 
     if (!job) {
-      return res.status(404).json({
-        success: false,
-        code: 404,
-        message: "Job not found",
-      });
+      throw new AppError("Job not found", 404);
     }
 
     res.status(200).json({
@@ -142,12 +114,7 @@ const deleteJobController = async (req, res) => {
       message: "Job deleted successfully",
     });
   } catch (error) {
-    res.status(501).json({
-      success: false,
-      code: 501,
-      message: "Internal server error",
-      error: error.message,
-    });
+    next(error);
   }
 };
 
