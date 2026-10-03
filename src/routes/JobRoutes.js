@@ -5,12 +5,14 @@ const {
   editJobController,
   deleteJobController,
 } = require("../controller/jobController");
+const { userAuth, authorizeRoles } = require("../middleware/authMiddleware");
 
 const jobRouter = express.Router();
 
-jobRouter.post("/create", createJobController);
-jobRouter.get("/all", allJobsController);
-jobRouter.put("/edit/:id", editJobController);
-jobRouter.delete("/delete/:id", deleteJobController);
+// Any logged-in user can browse jobs; only admins can manage them
+jobRouter.post("/create", userAuth, authorizeRoles("admin"), createJobController);
+jobRouter.get("/all", userAuth, allJobsController);
+jobRouter.put("/edit/:id", userAuth, authorizeRoles("admin"), editJobController);
+jobRouter.delete("/delete/:id", userAuth, authorizeRoles("admin"), deleteJobController);
 
 module.exports = jobRouter;

@@ -23,6 +23,11 @@ const normalizeError = (err) => {
     return new AppError(`${field} already exists`, 409);
   }
 
+  // Bad or expired JWT
+  if (err.name === "JsonWebTokenError" || err.name === "TokenExpiredError") {
+    return new AppError("Invalid or expired token", 401);
+  }
+
   // Malformed JSON body
   if (err.type === "entity.parse.failed") {
     return new AppError("Invalid JSON in request body", 400);

@@ -6,6 +6,7 @@ const registerValidator = async (data) => {
     const email = String(data?.email ?? "").trim();
     const password = String(data?.password ?? "");
     const location = data?.location;
+    const role = data?.role;
 
     if (validator.isEmpty(name)) {
       return { valid: false, message: "Name is required" };
@@ -37,6 +38,10 @@ const registerValidator = async (data) => {
 
     if (location !== undefined && validator.isEmpty(String(location).trim())) {
       return { valid: false, message: "Location cannot be empty" };
+    }
+
+    if (role !== undefined && !["user", "admin"].includes(role)) {
+      return { valid: false, message: "Role must be either user or admin" };
     }
 
     return { valid: true };

@@ -46,6 +46,23 @@ const JobSchema = new mongoose.Schema(
                 message: `Skill cannot be empty`
             }
         },
+        workType:{
+            type:String,
+            required: [true, "Work type is required"],
+            enum:["full-time", "part-time", "internship", "contract"],
+            default:"full-time",
+        },
+        status:{
+         type:String,
+         required:[true, "Status is required"],
+         enum:["pending", "rejected", "interview"],
+         default:"pending"
+        },
+        createdBy:{
+            type:mongoose.Types.ObjectId,
+            ref:"User"
+        }
+
     },
     { timestamps: true },
 );

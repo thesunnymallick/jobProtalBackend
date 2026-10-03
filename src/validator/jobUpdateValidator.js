@@ -1,6 +1,11 @@
+const Job = require("../models/JobModel");
+
+const WORK_TYPES = Job.schema.path("workType").enumValues;
+const STATUSES = Job.schema.path("status").enumValues;
+
 const jobUpdateValidator = async (data) => {
   try {
-    const { title, company, description, location, salary, skills } = data;
+    const { title, company, description, location, salary, skills, workType, status } = data;
 
     if (
       title === undefined &&
@@ -8,7 +13,9 @@ const jobUpdateValidator = async (data) => {
       description === undefined &&
       location === undefined &&
       salary === undefined &&
-      skills === undefined
+      skills === undefined &&
+      workType === undefined &&
+      status === undefined
     ) {
       return { valid: false, message: "At least one field is required to update" };
     }
@@ -38,6 +45,14 @@ const jobUpdateValidator = async (data) => {
       (!Array.isArray(skills) || skills.length === 0 || !skills.every((skill) => skill.trim().length !== 0))
     ) {
       return { valid: false, message: "At least one non-empty skill is required" };
+    }
+
+    if (workType !== undefined && !WORK_TYPES.includes(workType)) {
+      return { valid: false, message: `Work type must be one of: ${WORK_TYPES.join(", ")}` };
+    }
+
+    if (status !== undefined && !STATUSES.includes(status)) {
+      return { valid: false, message: `Status must be one of: ${STATUSES.join(", ")}` };
     }
 
     return { valid: true };

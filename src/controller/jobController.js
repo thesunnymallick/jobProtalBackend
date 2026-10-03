@@ -9,7 +9,7 @@ const createJobController = async (req, res, next) => {
     if (!validator.valid) {
       throw new AppError(validator.message, 400);
     }
-    const { title, company, description, location, salary, skills } = req.body;
+    const { title, company, description, location, salary, skills, workType, status } = req.body;
     const job = await Job.create({
       title,
       company,
@@ -17,6 +17,9 @@ const createJobController = async (req, res, next) => {
       location,
       salary,
       skills,
+      workType,
+      status,
+      createdBy: req.user.userId,
     });
     res.status(201).json({
       code: 201,
@@ -66,7 +69,7 @@ const editJobController = async (req, res, next) => {
       throw new AppError(validator.message, 400);
     }
 
-    const { title, company, description, location, salary, skills } = req.body;
+    const { title, company, description, location, salary, skills, workType, status } = req.body;
     const updateData = {
       title,
       company,
@@ -74,6 +77,8 @@ const editJobController = async (req, res, next) => {
       location,
       salary,
       skills,
+      workType,
+      status,
     };
     Object.keys(updateData).forEach(
       (key) => updateData[key] === undefined && delete updateData[key],

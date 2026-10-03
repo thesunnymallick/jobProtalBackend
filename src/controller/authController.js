@@ -9,12 +9,12 @@ const registerController = async (req, res, next) => {
     if (!validator.valid) {
       throw new AppError(validator.message, 400);
     }
-    const { name, email, password, location } = req.body;
+    const { name, email, password, location, role } = req.body;
     const isExistingUser = await User.findOne({ email });
     if (isExistingUser) {
       throw new AppError("User already exists!", 409);
     }
-    const user = await User.create({ name, email, password, location });
+    const user = await User.create({ name, email, password, location, role });
     const token=user.createJWT()
 
     res.status(201).json({
@@ -24,7 +24,8 @@ const registerController = async (req, res, next) => {
       user: {
         name: user.name,
         email: user.email,
-        location:user.location
+        location:user.location,
+        role: user.role,
       },
       token
 
@@ -53,12 +54,16 @@ const loginController=async(req, res, next)=>{
       throw new AppError("Invalid email or password!", 400)
      }
      const token=user.createJWT()
-     user.password = undefined;
      res.status(200).json({
       code: 200,
       success: true,
       message: "User login successfully",
-      user,
+      user: {
+        name: user.name,
+        email: user.email,
+        location: user.location,
+        role: user.role,
+      },
       token
     });
   } catch (error) {
