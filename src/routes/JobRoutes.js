@@ -4,6 +4,7 @@ const {
   allJobsController,
   editJobController,
   deleteJobController,
+  jobStatsController,
 } = require("../controller/jobController");
 const { userAuth, authorizeRoles } = require("../middleware/authMiddleware");
 
@@ -14,5 +15,7 @@ jobRouter.post("/create", userAuth, authorizeRoles("admin"), createJobController
 jobRouter.get("/all", userAuth, allJobsController);
 jobRouter.put("/edit/:id", userAuth, authorizeRoles("admin"), editJobController);
 jobRouter.delete("/delete/:id", userAuth, authorizeRoles("admin"), deleteJobController);
+jobRouter.get("/job-stats", userAuth, authorizeRoles("admin"), jobStatsController)
+
 
 module.exports = jobRouter;

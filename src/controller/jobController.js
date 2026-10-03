@@ -1,4 +1,6 @@
 const Job = require("../models/JobModel");
+const mongoose=require("mongoose")
+const moment=require("moment");
 const jobCreateValidator = require("../validator/jobCreateValidator");
 const jobUpdateValidator = require("../validator/jobUpdateValidator");
 const AppError = require("../utils/AppError");
@@ -123,9 +125,105 @@ const deleteJobController = async (req, res, next) => {
   }
 };
 
+const jobStatsController=async (req, res, next)=>{
+  try {
+
+     const savenDaysAgo=moment().subtract(7, "days").toDate();
+
+     const jobsLast7days=await Job.countDocuments({
+      createdBy:req.user.userId,
+      createdAt:{$gte:savenDaysAgo}
+     })
+    
+
+    const stats= await Job.aggregate([
+      {
+        $match :{
+          createdBy: new mongoose.Types.ObjectId(req.user.userId)
+        }
+      },
+      {
+        $group:{
+          _id:"$status",
+          count:{$sum:1}
+        }
+      }
+    ])
+
+    const monthlyApplications=await Job.aggregate([
+      {
+        $match :{
+          createdBy:new mongoose.Types.ObjectId(req.user.userId)
+        },
+      },
+      {
+       $group:{
+        _id:{
+          year:{$year:"$createdBy"},
+          month:{$month:"$createdBy"}
+        },
+        count:{$sum:1}
+       }
+      }
+    ])
+
+    const workTypeStats=await Job.aggregate([
+      {
+        $match :{
+          createdBy: new mongoose.Types.ObjectId(req.user.userId)
+        }
+      },
+      {
+        $group:{
+          _id:"$workType",
+          count:{$sum:1}
+        }
+      }
+    ])
+    const locationTypeStats=await Job.aggregate([
+      {
+        $match :{
+          createdBy: new mongoose.Types.ObjectId(req.user.userId)
+        }
+      },
+      {
+        $group:{
+          _id:"$location",
+          count:{$sum:1}
+        }
+      }
+    ])
+    
+    const statsApplication=monthlyApplications.map((item)=>{
+      const {_id:{year, month}, count}=item
+      const date=moment().month(month-1).year(year).format("MMM Y")
+      return {date, count}
+    })
+
+
+    const totalJobs=stats.reduce((sum, s)=>sum+s.count, 0)
+
+    res.status(200).json({
+      code:200,
+      message:"Job stats fetch successfully",
+      success:true,
+      jobsLast7days,
+      totalJobs,
+      stats,
+      statsApplication,
+      workTypeStats,
+      locationTypeStats
+      
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
 module.exports = {
   createJobController,
   allJobsController,
   editJobController,
   deleteJobController,
+  jobStatsController
 };
