@@ -36,11 +36,23 @@ const createJobController = async (req, res, next) => {
 
 const allJobsController = async (req, res, next) => {
   try {
+    const {status, workType, search}=req.query
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * 10;
-    const allJobs = await Job.find({}).skip(skip).limit(limit);
-    const totalJobs = await Job.countDocuments({});
+    let queryObject={}
+     if(status){
+       queryObject.status=status
+     }
+     if(workType){
+      queryObject.workType=workType
+     }
+     if(search){
+      queryObject.title={$regex : search, $options: "i"}
+     }
+     
+    const allJobs = await Job.find(queryObject).skip(skip).limit(limit);
+    const totalJobs = await Job.countDocuments(queryObject);
     const totalPages = Math.ceil(totalJobs / limit);
 
     res.status(200).json({
