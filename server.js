@@ -6,6 +6,7 @@ const mongoDBConnect = require(`./src/config/db`);
 const jobRouter = require("./src/routes/JobRoutes");
 const authRouter = require("./src/routes/AuthRoutes");
 const { notFound, errorHandler } = require("./src/middleware/errorMiddleware");
+const applicationsRoute = require("./src/routes/ApplicationRoutes");
 const app = express();
 dotenv.config()
 
@@ -19,6 +20,7 @@ app.use(express.json())
 // All Routes 
 app.use("/api/v1/job", jobRouter);
 app.use("/api/v1/auth", authRouter)
+app.use("/api/v1/application", applicationsRoute)
 
 // Error handling (must be registered after all routes)
 app.use(notFound);
