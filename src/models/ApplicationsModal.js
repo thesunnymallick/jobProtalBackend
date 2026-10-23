@@ -8,7 +8,7 @@ const ApplicationSchema=mongoose.Schema({
     },
     applicant:{
         type:mongoose.Types.ObjectId,
-        ref:"Users",
+        ref:"User",
         required:[true, "user id is required"]
     },
     status:{

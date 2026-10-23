@@ -1,7 +1,7 @@
 
 const express=require("express");
-const { userAuth } = require("../middleware/authMiddleware");
-const { jobApplyController } = require("../controller/applicationsController");
+const { userAuth, authorizeRoles } = require("../middleware/authMiddleware");
+const { jobApplyController, jobMeController, viewApplicationsForJob, updateJobStatus } = require("../controller/applicationsController");
 // const {}=require("../")
 
 const applicationsRoute=express.Router();
@@ -9,5 +9,9 @@ const applicationsRoute=express.Router();
 
 applicationsRoute.post("/apply/:jobId", userAuth, jobApplyController);
 
+applicationsRoute.get("/me", userAuth, jobMeController)
 
-module.exports=applicationsRoute
+applicationsRoute.get("/job/:jobId", userAuth, authorizeRoles("admin"), viewApplicationsForJob)
+
+applicationsRoute.patch("/:appId/:status", userAuth, authorizeRoles("admin"), updateJobStatus)
+module.exports=applicationsRoute 
