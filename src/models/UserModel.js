@@ -1,13 +1,15 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
-const JWT =require("jsonwebtoken");
+const JWT = require("jsonwebtoken");
 const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
       required: [true, "Name is required"],
       trim: true,
+      minLength:[2, "Name must be least 2 characters"],
+      maxLength:[50, "Name cannot exceed 50 characters"]
     },
     email: {
       type: String,
@@ -15,7 +17,10 @@ const userSchema = new mongoose.Schema(
       trim: true,
       unique: true,
       lowercase: true,
-      validate: [validator.isEmail, "Please provide a valid email"],
+      validate: {
+        validator:(value)=>validator.isEmail(value),
+        message:"Please provide a valid email"
+      } 
     },
     password: {
       type: String,
@@ -35,6 +40,97 @@ const userSchema = new mongoose.Schema(
       },
       default: "user",
     },
+    phone: {
+      type: String,
+      trim:true,
+    },
+    headline: {
+      type: String,
+      trim:true,
+    },
+    bio: {
+      type: String,
+      trim:true,
+    },
+    skills: {
+      type: [String],
+    },
+    experience: {
+      type: [
+        {
+          title: {
+            type: String,
+            trim:true,
+          },
+          company: {
+            type: String,
+            trim:true,
+          },
+          location: {
+            type: String,
+
+          },
+          startDate: {
+            type: Date,
+          },
+          endDate: {
+            type: Date,
+          },
+          currentPosition: {
+            type: Boolean,
+            default: false,
+
+          },
+          description: {
+            type: String,
+            trim:true,
+          },
+        },
+      ],
+    },
+    education: {
+      type: [
+        {
+          institute: {
+            type: String,
+          },
+          degree: {
+            type: String,
+          },
+          fieldOfStudy: {
+            type: String,
+          },
+          startYear: {
+            type: String,
+          },
+          endYear: {
+            Type: String,
+          },
+        },
+      ],
+    },
+    resume: {
+      type: String,
+       trim:true,
+    },
+    profilePhoto: {
+      type: String,
+      trim:true,
+    },
+    links: {
+      linkedin: {
+        type: String,
+        trim:true,
+      },
+      github: {
+        type: String,
+        trim:true,
+      },
+      portfolio: {
+        type: String,
+        trim:true,
+      },
+    },
   },
   { timestamps: true },
 );
@@ -48,11 +144,15 @@ userSchema.pre("save", async function () {
 
 userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
-}
+};
 
-userSchema.methods.createJWT=function (){
-   return JWT.sign({userId:this._id, role:this.role}, process.env.JWT_SECRET_KEY, {expiresIn:"1d"})
-}
+userSchema.methods.createJWT = function () {
+  return JWT.sign(
+    { userId: this._id, role: this.role },
+    process.env.JWT_SECRET_KEY,
+    { expiresIn: "1d" },
+  );
+};
 
 const User = mongoose.model("User", userSchema);
 
